@@ -8,7 +8,10 @@ interface RouteParams {
   }>;
 }
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: RouteParams
+): Promise<NextResponse> {
   try {
     // Validate slug parameter
     const { slug } = await params;
@@ -23,7 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     await connectDB();
 
     // Find event by slug
-    const event = await Event.findOne({ slug }).select("-__v");
+    const event = await Event.findOne({ slug }).select("-__v").lean();
 
     // Handle event not found
     if (!event) {
@@ -34,7 +37,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Return event data
-    return NextResponse.json({ event }, { status: 200 });
+    return NextResponse.json(
+      { message: "Event fetched successfully", event },
+      { status: 200 }
+    );
   } catch (error) {
     // Log error for monitoring but don't expose details
     console.error("Error fetching event:", error);
