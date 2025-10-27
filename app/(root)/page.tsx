@@ -1,9 +1,13 @@
 import ExplorerBtn from "@/Components/ExplorerBtn";
 import EventCard from "@/Components/EventCard";
 import { events } from "@/lib/constants";
+import { IEvent } from "@/database";
 
-const Home = () => {
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const Home = async () => {
   console.log("Where am I?");
+  const response = await fetch(`${BASE_URL}/api/events`);
+  const data : IEvent[] = await response.json();
   return (
     <section>
       <h1 className="text-center">
@@ -19,11 +23,13 @@ const Home = () => {
         <h3>Featured Events</h3>
 
         <ul className="events list-none">
-          {events.map((event) => (
-            <li key={event.title}>
-              <EventCard {...event} />
-            </li>
-          ))}
+          {data &&
+            data.length > 0 &&
+            data.map((event) => (
+              <li key={event.title}>
+                <EventCard {...event} />
+              </li>
+            ))}
         </ul>
       </div>
     </section>
