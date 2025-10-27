@@ -1,7 +1,7 @@
-import { Schema, model, models, Document, Model } from "mongoose";
+import { Schema, model, models, Document } from "mongoose";
 
-// Event document interface
-interface IEvent extends Document {
+// TypeScript interface for Event document
+export interface IEvent extends Document {
   title: string;
   slug: string;
   description: string;
@@ -11,7 +11,7 @@ interface IEvent extends Document {
   location: string;
   date: string;
   time: string;
-  mode: "online" | "offline" | "hybrid";
+  mode: string;
   audience: string;
   agenda: string[];
   organizer: string;
@@ -20,32 +20,36 @@ interface IEvent extends Document {
   updatedAt: Date;
 }
 
-// Schema definition
-const eventSchema = new Schema<IEvent>(
+const EventSchema = new Schema<IEvent>(
   {
     title: {
       type: String,
       required: [true, "Title is required"],
       trim: true,
+      maxlength: [100, "Title cannot exceed 100 characters"],
     },
     slug: {
       type: String,
       unique: true,
-      index: true,
+      lowercase: true,
+      trim: true,
     },
     description: {
       type: String,
       required: [true, "Description is required"],
       trim: true,
+      maxlength: [1000, "Description cannot exceed 1000 characters"],
     },
     overview: {
       type: String,
       required: [true, "Overview is required"],
       trim: true,
+      maxlength: [500, "Overview cannot exceed 500 characters"],
     },
     image: {
       type: String,
       required: [true, "Image URL is required"],
+      trim: true,
     },
     venue: {
       type: String,
@@ -67,19 +71,22 @@ const eventSchema = new Schema<IEvent>(
     },
     mode: {
       type: String,
-      enum: ["online", "offline", "hybrid"],
       required: [true, "Mode is required"],
+      enum: {
+        values: ["online", "offline", "hybrid"],
+        message: "Mode must be either online, offline, or hybrid",
+      },
     },
     audience: {
       type: String,
-      required: [true, "Target audience is required"],
+      required: [true, "Audience is required"],
       trim: true,
     },
     agenda: {
       type: [String],
-      required: [true, "Agenda items are required"],
+      required: [true, "Agenda is required"],
       validate: {
-        validator: (v: string[]) => Array.isArray(v) && v.length > 0,
+        validator: (v: string[]) => v.length > 0,
         message: "At least one agenda item is required",
       },
     },
@@ -92,46 +99,96 @@ const eventSchema = new Schema<IEvent>(
       type: [String],
       required: [true, "Tags are required"],
       validate: {
-        validator: (v: string[]) => Array.isArray(v) && v.length > 0,
+        validator: (v: string[]) => v.length > 0,
         message: "At least one tag is required",
       },
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // Auto-generate createdAt and updatedAt
   }
 );
 
-// Generate URL-friendly slug from title
-eventSchema.pre("save", function (next) {
-  if (this.isModified("title")) {
-    this.slug = this.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+// Pre-save hook for slug generation and data normalization
+EventSchema.pre("save", function (next) {
+  const event = this as IEvent;
+
+  // Generate slug only if title changed or document is new
+  if (event.isModified("title") || event.isNew) {
+    event.slug = generateSlug(event.title);
   }
 
-  // Normalize date to ISO format
-  if (this.isModified("date")) {
-    const normalizedDate = new Date(this.date).toISOString().split("T")[0];
-    this.date = normalizedDate;
+  // Normalize date to ISO format if it's not already
+  if (event.isModified("date")) {
+    event.date = normalizeDate(event.date);
   }
 
-  // Normalize time format (HH:mm)
-  if (this.isModified("time")) {
-    const timeMatch = this.time.match(/(\d{1,2}):(\d{2})/);
-    if (timeMatch) {
-      const [_, hours, minutes] = timeMatch;
-      this.time = `${hours.padStart(2, "0")}:${minutes}`;
-    }
+  // Normalize time format (HH:MM)
+  if (event.isModified("time")) {
+    event.time = normalizeTime(event.time);
   }
 
   next();
 });
 
-// Export the model if it doesn't exist, otherwise use the existing one
-const Event: Model<IEvent> =
-  models.Event || model<IEvent>("Event", eventSchema);
+// Helper function to generate URL-friendly slug
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+}
+
+// Helper function to normalize date to ISO format
+function normalizeDate(dateString: string): string {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date format");
+  }
+  return date.toISOString().split("T")[0]; // Return YYYY-MM-DD format
+}
+
+// Helper function to normalize time format
+function normalizeTime(timeString: string): string {
+  // Handle various time formats and convert to HH:MM (24-hour format)
+  const timeRegex = /^(\d{1,2}):(\d{2})(\s*(AM|PM))?$/i;
+  const match = timeString.trim().match(timeRegex);
+
+  if (!match) {
+    throw new Error("Invalid time format. Use HH:MM or HH:MM AM/PM");
+  }
+
+  let hours = parseInt(match[1]);
+  const minutes = match[2];
+  const period = match[4]?.toUpperCase();
+
+  if (period) {
+    // Convert 12-hour to 24-hour format
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+  }
+
+  if (
+    hours < 0 ||
+    hours > 23 ||
+    parseInt(minutes) < 0 ||
+    parseInt(minutes) > 59
+  ) {
+    throw new Error("Invalid time values");
+  }
+
+  return `${hours.toString().padStart(2, "0")}:${minutes}`;
+}
+
+// Create unique index on slug for better performance
+EventSchema.index({ slug: 1 }, { unique: true });
+
+// Create compound index for common queries
+EventSchema.index({ date: 1, mode: 1 });
+
+const Event = models.Event || model<IEvent>("Event", EventSchema);
 
 export default Event;
-export type { IEvent };
