@@ -2,6 +2,8 @@ import { Schema, model, models, Document } from "mongoose";
 
 // TypeScript interface for Event document
 export interface IEvent extends Document {
+  _id: string;
+  __v: number;
   title: string;
   slug: string;
   description: string;

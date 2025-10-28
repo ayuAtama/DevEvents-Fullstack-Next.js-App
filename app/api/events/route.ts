@@ -25,6 +25,11 @@ export async function POST(req: NextRequest) {
         { message: "Image file is required" },
         { status: 400 }
       );
+
+    let tags = JSON.parse(formData.get("tags") as string);
+    let agenda = JSON.parse(formData.get("agenda") as string);
+
+    // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -44,7 +49,12 @@ export async function POST(req: NextRequest) {
     // add image URL to event data
     event.image = (uploadResult as { secure_url: string }).secure_url;
 
-    const createdEvent = await Event.create(event);
+    // Create event in parsed tags and agenda
+    const createdEvent = await Event.create({
+      ...event,
+      tags: tags,
+      agenda: agenda,
+    });
     return NextResponse.json(
       {
         message: "Event created successfully",
@@ -81,4 +91,3 @@ export async function GET() {
 }
 
 // a route that accept a slug as input and return the event details with the slugs
-
