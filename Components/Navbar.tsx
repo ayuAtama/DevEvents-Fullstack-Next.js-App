@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
 function Navbar() {
   return (
@@ -14,7 +13,7 @@ function Navbar() {
         <ul>
           <Link href="/">Home</Link>
           <Link href="/">Events</Link>
-          <Link href="/">Create Event</Link>
+          <Link href="/create-event">Create Event</Link>
         </ul>
       </nav>
     </header>

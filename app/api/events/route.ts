@@ -26,8 +26,11 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
 
-    let tags = JSON.parse(formData.get("tags") as string);
-    let agenda = JSON.parse(formData.get("agenda") as string);
+    // let tags = JSON.parse(formData.get("tags") as string);
+    // let agenda = JSON.parse(formData.get("agenda") as string);
+
+    let tags = formData.getAll("tags");
+    let agenda = formData.getAll("agenda");
 
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
