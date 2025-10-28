@@ -4,6 +4,7 @@ import BookEvent from "@/Components/BookEvent";
 import { getSimilarEventsBySlug } from "@/lib/action/event.action";
 import { IEvent } from "@/database/event.model";
 import EventCard from "@/Components/EventCard";
+import { cacheLife } from "next/cache";
 
 const EventDetailItem = ({
   icon,
@@ -51,12 +52,18 @@ const EventDetailsPage = async ({
 }: {
   params: Promise<{ slug: string }>;
 }) => {
+  "use cache";
+  cacheLife("hours");
+
   //use params
   const { slug } = await params;
   const request = await fetch(`${BASE_URL}/api/events/${slug}`);
   //const { message } = await request.json();
+
+  let event;
   const {
     event: {
+      title,
       description,
       image,
       overview,
@@ -68,10 +75,11 @@ const EventDetailsPage = async ({
       audience,
       tags,
       organizer,
+      _id,
     },
   } = await request.json();
-
-  const similarEvents : IEvent[] = await getSimilarEventsBySlug(slug)
+  // console.log(await request.json());
+  const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
   // const {description,image, overview, date, time, location, mode, agenda, audience,tags} = event
   // const data = await request.json();
@@ -80,8 +88,8 @@ const EventDetailsPage = async ({
   if (!description) return notFound();
   return (
     <section id="event">
-      <div className="header">
-        <h1>Event Description</h1>
+      <div className="header flex-col-gap-2">
+        <h1 className="flex-col-gap-2">{title}</h1>
         <p>{description}</p>
       </div>
       <div className="details">
@@ -134,7 +142,7 @@ const EventDetailsPage = async ({
             ) : (
               <p>Be the first who book your spot</p>
             )}
-            <BookEvent />
+            <BookEvent eventId={_id} slug={slug} />
           </div>
         </aside>
       </div>
