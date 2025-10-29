@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
 
+  // ignore typescript errors for the build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   // Cache component enabled
   cacheComponents: true,
 

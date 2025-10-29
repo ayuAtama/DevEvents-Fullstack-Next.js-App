@@ -4,3 +4,8 @@ const UserDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 };
 
 export default UserDetails;
+
+export async function generateStaticParams() {
+  // Provide at least one param to satisfy Cache Components prerender requirement
+  return [{ id: "example" }];
+}
