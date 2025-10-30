@@ -4,15 +4,14 @@ import { IEvent } from "@/database";
 import { cacheLife } from "next/cache";
 //import data1 from "@/lib/fakedata";
 
-
 const Home = async () => {
-  "use cache";
-  cacheLife("hours");
-  
+  //  "use cache";
+  // cacheLife("hours");
+
   console.log("Where am I?");
-  
+
   // let data1: IEvent[] = fakeData as unknown as IEvent[];
-  
+
   // Try to fetch real data, fallback to fake data if it fails
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   const url = `${BASE_URL}/api/events`;
