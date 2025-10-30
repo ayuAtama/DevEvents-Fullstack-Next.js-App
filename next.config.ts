@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
       { protocol: "https", hostname: "*.unsplash.com" },
+      { protocol: "https", hostname: "**"},
+      { protocol: "http", hostname: "**"}
     ],
   },
 
