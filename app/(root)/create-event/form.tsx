@@ -28,12 +28,23 @@ const EventFormSchema = z.object({
 
 type EventForm = z.infer<typeof EventFormSchema>;
 
-export default function NewEventFormPage() {
+// Define the props for the NewEventFormPage component
+interface NewEventFormPageProps {
+  session: {
+    user: {
+      id: string;
+      name?: string;
+    };
+    expires: string;
+  };
+}
+
+export default function NewEventFormPage({ session }: NewEventFormPageProps) {
+  console.log(session);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(
     null
   );
-
   const {
     register,
     control,
@@ -112,7 +123,9 @@ export default function NewEventFormPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Create New Event</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        Create a New Event {session.user.name}!
+      </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4"

@@ -5,8 +5,8 @@ import { cacheLife } from "next/cache";
 //import data1 from "@/lib/fakedata";
 
 const Home = async () => {
-  //  "use cache";
-  // cacheLife("hours");
+  "use cache";
+  cacheLife("hours");
 
   console.log("Where am I?");
 

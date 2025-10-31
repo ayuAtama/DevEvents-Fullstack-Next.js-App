@@ -23,7 +23,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       id: "credentials",
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "alice" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
@@ -53,7 +53,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   // Optional: customize pages, callbacks, etc.
   pages: {
-    signIn: "/signin",
+    signIn: "/login",
   },
 
   // Enable debug only during development

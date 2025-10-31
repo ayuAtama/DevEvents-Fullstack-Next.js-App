@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   },
 
   // Cache component enabled
-  cacheComponents: false,
+  cacheComponents: true,
 
   //cloudinary setup
   // domains is deprecated(image and then domains), use remotePatterns instead

@@ -1,11 +1,26 @@
 // app/dashboard/page.tsx
-import { auth } from "@/auth"; // exported from auth.ts
+import { Suspense } from "react";
+import { auth } from "@/auth";
+import { cacheLife } from "next/cache";
 
-export default async function Dashboard() {
-  const session = await auth(); // returns session or null
+// ✅ Cached part (static UI)
+async function CachedDashboardContent({ session }: { session: any }) {
+  "use cache"; // must be first line
+  cacheLife("hours");
+
+  return (
+    <div>
+      <h1>Welcome, {session.user?.name ?? session.user?.username}</h1>
+      <pre>{JSON.stringify(session, null, 2)}</pre>
+    </div>
+  );
+}
+
+// ✅ Dynamic wrapper to fetch the session
+async function SessionLoader() {
+  const session = await auth();
 
   if (!session) {
-    // show a message or redirect to /signin
     return (
       <div>
         Please <a href="/signin">sign in</a> to view the dashboard.
@@ -13,10 +28,15 @@ export default async function Dashboard() {
     );
   }
 
+  return <CachedDashboardContent session={session} />;
+}
+
+// ✅ Main page component — not blocking
+export default function Dashboard() {
   return (
-    <div>
-      <h1>Welcome, {session.user?.name ?? session.user?.username}</h1>
-      <pre>{JSON.stringify(session, null, 2)}</pre>
-    </div>
+    <Suspense fallback={<div>Loading your dashboard...</div>}>
+      {/* This async component is wrapped, so it won’t block */}
+      <SessionLoader />
+    </Suspense>
   );
 }
