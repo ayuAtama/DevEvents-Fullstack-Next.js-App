@@ -159,7 +159,26 @@ export async function PUT(
       event.image = (uploadResult as { secure_url: string }).secure_url;
     }
 
-    // update the event by slug
+    //if the title changed generate new slug
+    // helper function to generate URL-friendly slug
+    const generateSlug = (title: string): string => {
+      return title
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+        .replace(/\s+/g, "-") // Replace spaces with hyphens
+        .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+        .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+    };
+    // detected the title changed
+    if (
+      typeof event.title === "string" &&
+      event.title !== existingEvent.title
+    ) {
+      event.slug = generateSlug(event.title);
+    }
+
+    // update the event's data by slug
     const updatedEventBySlug = await Event.findOneAndReplace({ slug }, event, {
       new: true,
     });
