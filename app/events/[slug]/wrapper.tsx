@@ -61,6 +61,15 @@ const EventDetailsPage = async ({
   //const { message } = await request.json();
 
   let event;
+
+  // handle error no event data to notFound pages
+  const body = await request.json();
+
+  if (!body.event) {
+    return notFound();
+  }
+
+  // destructure the event data
   const {
     event: {
       title,
@@ -77,8 +86,8 @@ const EventDetailsPage = async ({
       organizer,
       _id,
     },
-  } = await request.json();
-  // console.log(await request.json());
+  } = body;
+  // console.log(body);
   const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
   // const {description,image, overview, date, time, location, mode, agenda, audience,tags} = event
