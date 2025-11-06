@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 
 // Zod schema for form validation (image is a File now, not a URL)
 const EventFormSchema = z.object({
@@ -145,7 +146,7 @@ export default function EditForm({
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-4">
-        Edit Event {session.user.name}!
+        Edit Your Event Here {session.user.name}!
       </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -385,14 +386,21 @@ export default function EditForm({
           </div>
         </div>
 
-        <div className="pt-4">
+        <div className="pt-4 gap-2 flex">
           <button
             type="submit"
             disabled={submitting}
-            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
+            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
           >
             {submitting ? "Updating..." : "Update Event"}
           </button>
+
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded bg-green-600 text-white disabled:opacity-50 inline-block"
+          >
+            Back
+          </Link>
         </div>
 
         {result && (
