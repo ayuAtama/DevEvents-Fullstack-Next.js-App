@@ -1,6 +1,8 @@
+import page from "@/app/(root)/about/page";
 import Card from "@/Components/DashboardCard";
 import { IEvent } from "@/database";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 const itemsPerPage = 6;
 
@@ -10,7 +12,7 @@ async function getEvents(page: number) {
     `${BASE_URL}/api/events/dashboard?page=${page}&limit=${itemsPerPage}`,
     { cache: "no-store" }
   );
-  if (!res.ok) throw new Error("Failed to fetch events");
+  if (!res.ok) return notFound();
   return res.json();
 }
 
@@ -20,6 +22,14 @@ export default async function EventsList({
   currentPage: number;
 }) {
   const data = await getEvents(currentPage);
+
+  // If currentPage is beyond totalPages (e.g., last event deleted)
+  const pageToShow =
+    currentPage > data.totalPages ? data.totalPages : currentPage;
+
+  // refetch events for the adjusted page
+  const finalData =
+    pageToShow !== currentPage ? await getEvents(pageToShow) : data;
 
   return (
     <>
@@ -31,10 +41,10 @@ export default async function EventsList({
           gap-6 
           sm:grid-cols-2 
           lg:grid-cols-3
-          justify-items-center
+          justify-items-stretch
         "
         >
-          {data.events.map((card: IEvent, index: number) => (
+          {finalData.events.map((card: IEvent, index: number) => (
             <Card key={index} {...card} />
           ))}
         </div>
@@ -49,7 +59,7 @@ export default async function EventsList({
           )}
 
           <span className="text-sm text-gray-400">
-            Page {data.currentPage} of {data.totalPages}
+            Page {finalData.currentPage} of {finalData.totalPages}
           </span>
 
           {currentPage < data.totalPages && (

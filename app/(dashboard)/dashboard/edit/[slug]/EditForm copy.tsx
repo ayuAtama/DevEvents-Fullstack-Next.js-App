@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,6 +58,7 @@ export default function EditForm({
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(
     null
   );
+
   const {
     register,
     control,
@@ -67,18 +68,18 @@ export default function EditForm({
   } = useForm<EventForm>({
     resolver: zodResolver(EventFormSchema),
     defaultValues: {
-      title: event.title,
-      description: event.description,
-      overview: event.overview,
-      venue: event.venue,
-      location: event.location,
-      date: event.date,
-      time: event.time,
-      mode: event.mode,
-      audience: event.audience,
-      agenda: event.agenda,
-      organizer: event.organizer,
-      tags: event.tags,
+      title: event.title || "",
+      description: event.description || "",
+      overview: event.overview || "",
+      venue: event.venue || "",
+      location: event.location || "",
+      date: event.date || "",
+      time: event.time || "",
+      mode: event.mode || "online",
+      audience: event.audience || "",
+      agenda: event.agenda || [""],
+      organizer: event.organizer || "",
+      tags: event.tags || [],
     },
   });
 
@@ -86,12 +87,39 @@ export default function EditForm({
     fields: agendaFields,
     append: appendAgenda,
     remove: removeAgenda,
-  } = useFieldArray({ control, name: "agenda" });
+  } = useFieldArray({
+    control,
+    name: "agenda",
+    keyName: "fieldId", // Use a different key name to avoid conflicts
+  });
+
   const {
     fields: tagFields,
     append: appendTag,
     remove: removeTag,
-  } = useFieldArray({ control, name: "tags" });
+  } = useFieldArray({
+    control,
+    name: "tags",
+    keyName: "fieldId", // Use a different key name to avoid conflicts
+  });
+
+  // Reset form with event data when event prop changes
+  useEffect(() => {
+    reset({
+      title: event.title || "",
+      description: event.description || "",
+      overview: event.overview || "",
+      venue: event.venue || "",
+      location: event.location || "",
+      date: event.date || "",
+      time: event.time || "",
+      mode: event.mode || "online",
+      audience: event.audience || "",
+      agenda: event.agenda || [""],
+      organizer: event.organizer || "",
+      tags: event.tags || [],
+    });
+  }, [event, reset]);
 
   async function onSubmit(data: EventForm) {
     setSubmitting(true);
@@ -334,7 +362,7 @@ export default function EditForm({
           <label className="block text-sm font-medium">Agenda</label>
           <div className="space-y-2 mt-2">
             {agendaFields.map((f, idx) => (
-              <div key={f.id} className="flex gap-2">
+              <div key={f.fieldId} className="flex gap-2">
                 <input
                   {...register(`agenda.${idx}` as const)}
                   className="flex-1 rounded border px-3 py-2"
@@ -356,13 +384,18 @@ export default function EditForm({
               Add agenda
             </button>
           </div>
+          {errors.agenda && (
+            <p className="text-sm text-red-600">
+              {String(errors.agenda.message)}
+            </p>
+          )}
         </div>
 
         <div>
           <label className="block text-sm font-medium">Tags</label>
           <div className="flex gap-2 mt-2 flex-wrap">
             {tagFields.map((t, idx) => (
-              <div key={t.id} className="flex items-center gap-2">
+              <div key={t.fieldId} className="flex items-center gap-2">
                 <input
                   {...register(`tags.${idx}` as const)}
                   className="rounded border px-2 py-1"

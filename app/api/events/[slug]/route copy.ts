@@ -111,24 +111,48 @@ export async function PUT(
 
     // get the formdata from the request
     const formData = await request.formData();
+
     // make a variable to store the data event
-    let event;
-    // entries all the formData into event variable
+    let event: any = {};
+
+    // FIXED: Properly handle array fields
     try {
-      event = Object.fromEntries(formData.entries());
+      // Get all agenda items
+      const agendaItems = formData.getAll("agenda");
+      // Get all tags
+      const tagItems = formData.getAll("tags");
+
+      // Process non-array fields
+      for (const [key, value] of formData.entries()) {
+        // Skip agenda and tags as we'll handle them separately
+        if (key === "agenda" || key === "tags") {
+          continue;
+        }
+        event[key] = value;
+      }
+
+      // Add array fields
+      if (agendaItems.length > 0) {
+        event.agenda = agendaItems.filter((item) => item !== ""); // Filter out empty strings
+      }
+
+      if (tagItems.length > 0) {
+        event.tags = tagItems.filter((item) => item !== ""); // Filter out empty strings
+      }
     } catch (error) {
       return NextResponse.json(
-        { message: "Invalid JSON data format" },
+        { message: "Invalid form data format" },
         { status: 400 }
       );
     }
 
-    // handle for array fields
-    let tags = formData.getAll("tags");
-    let agenda = formData.getAll("agenda");
-
     // checking the image file new or not
     const existingEvent = await Event.findOne({ slug });
+
+    if (!existingEvent) {
+      return NextResponse.json({ message: "Event not found" }, { status: 404 });
+    }
+
     // store all the old data (because using findOneAndReplace to update the data)
     event.slug = existingEvent.slug;
     event.__v = existingEvent.__v;
@@ -161,6 +185,9 @@ export async function PUT(
       });
       // get the new image url and update the event.image
       event.image = (uploadResult as { secure_url: string }).secure_url;
+    } else {
+      // Keep the existing image if no new image is uploaded
+      event.image = existingEvent.image;
     }
 
     //if the title changed generate new slug
@@ -182,21 +209,10 @@ export async function PUT(
       event.slug = generateSlug(event.title);
     }
 
-    // final data
-    const finalData = {
-      ...event,
-      tags: tags,
-      agenda: agenda,
-    };
-
     // update the event's data by slug
-    const updatedEventBySlug = await Event.findOneAndReplace(
-      { slug },
-      finalData,
-      {
-        new: true,
-      }
-    );
+    const updatedEventBySlug = await Event.findOneAndReplace({ slug }, event, {
+      new: true,
+    });
     // return the response
     return NextResponse.json(
       {

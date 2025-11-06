@@ -24,7 +24,10 @@ export async function GET(req: Request) {
     // connect to mongoDB
     await connectDB();
     // mongoDB pagination filter
-    const mongoPaginated = await Event.find().skip(start).limit(limit);
+    const mongoPaginated = await Event.find()
+      .sort({ createdAt: -1 }) // newest first
+      .skip(start)
+      .limit(limit);
     const total = await Event.countDocuments();
 
     // return data response
