@@ -5,15 +5,17 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { cookies } from "next/headers";
 import EditForm from "./EditForm";
+import LoadingPage from "@/Components/LoadingPage";
 
 const AuthWrapper = async ({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) => {
+  // check if user is logged in
   cookies();
   const session = await auth();
-
+  // redirect if not logged in
   if (!session) redirect("/login");
 
   // Await params before accessing properties
@@ -40,11 +42,7 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   return (
-    <Suspense
-      fallback={
-        <div className="max-w-3xl mx-auto p-6">Loading Edit Page...</div>
-      }
-    >
+    <Suspense fallback={<LoadingPage />}>
       <AuthWrapper params={params} />
     </Suspense>
   );

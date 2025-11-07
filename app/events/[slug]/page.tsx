@@ -1,11 +1,10 @@
 import { Suspense } from "react";
 import EventDetailsPage from "./wrapper";
+import LoadingPage from "@/Components/LoadingPage";
 
 const page = ({ params }: { params: Promise<{ slug: string }> }) => {
   return (
-    <Suspense
-      fallback={<div className="max-w-3xl mx-auto p-6">Loading...</div>}
-    >
+    <Suspense fallback={<LoadingPage />}>
       <EventDetailsPage params={params} />
     </Suspense>
   );

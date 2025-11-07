@@ -2,11 +2,12 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 // Zod schema for form validation (image is a File now, not a URL)
 const EventFormSchema = z.object({
@@ -47,10 +48,6 @@ export default function EditForm({
   event,
   slug,
 }: EditEventFormPageProps) {
-  console.log(session);
-  console.log(event);
-  console.log(slug);
-
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
   // Form state
@@ -132,9 +129,11 @@ export default function EditForm({
 
       if (!res.ok) {
         setResult({ ok: false, message: payload?.message || "Server error" });
+        toast.error(payload.message);
       } else {
         setResult({ ok: true, message: "Event updated successfully" });
         // Don't reset after successful update, keep the form data
+        toast.success(String("Event updated successfully"));
       }
     } catch (err: any) {
       setResult({ ok: false, message: err?.message || "Network error" });
@@ -142,6 +141,16 @@ export default function EditForm({
       setSubmitting(false);
     }
   }
+
+  // useEffect for restting message after 5 seconds
+  useEffect(() => {
+    if (result) {
+      const timer = setTimeout(() => {
+        setResult(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  });
 
   return (
     <div className="max-w-3xl mx-auto p-6">

@@ -30,9 +30,9 @@ export default function SignInPage() {
     // (some implementations return { error } via query string instead)
     if (!result?.error) {
       // success: navigate to protected page or home
-      window.location.href = "/";
+      window.location.href = "/dashboard";
       router.refresh();
-      router.push("/");
+      router.push("/dashboard");
     } else {
       setError("Invalid credentials");
     }
@@ -42,7 +42,7 @@ export default function SignInPage() {
     <section id="event">
       <div className="details">
         <div className="content">
-          <h1 className="leading-normal">Login to Create a Post</h1>
+          <h1 className="leading-normal">Login to Create or Edit a Post</h1>
           <h4>
             Post as many as you want — seriously, go wild, just don't turn our
             server into your personal spam museum. We appreciate the enthusiasm
@@ -60,6 +60,7 @@ export default function SignInPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 type="text"
+                placeholder="see on github ayuatama"
               />
               {error && <p className="text-sm text-red-600">{error}</p>}
             </div>
@@ -74,6 +75,7 @@ export default function SignInPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                placeholder="*******"
               />
               {error && <p className="text-sm text-red-600">{error}</p>}
             </div>
@@ -86,7 +88,7 @@ export default function SignInPage() {
 
             <button
               type="submit"
-              className="w-full rounded bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
+              className="w-full rounded bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 hover: cursor-pointer"
             >
               Login
             </button>

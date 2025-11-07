@@ -18,6 +18,14 @@ export default function DeleteButton({ slug }: { slug: string }) {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
+      background: "#1f2937", // dark gray background
+      color: "#f9fafb", // light text color
+      buttonsStyling: true,
+      customClass: {
+        popup: "shadow-lg rounded-lg", // optional extra styling
+        confirmButton: "bg-red-600 hover:bg-red-700 text-white",
+        cancelButton: "bg-gray-600 hover:bg-gray-700 text-white",
+      },
     });
 
     if (!result.isConfirmed) return;
@@ -42,7 +50,7 @@ export default function DeleteButton({ slug }: { slug: string }) {
       onClick={handleDelete}
       className="inline-flex items-center px-3 py-2 text-sm font-medium text-center 
                  text-white bg-red-600 rounded-lg hover:bg-red-700 
-                 focus:ring-4 focus:outline-none focus:ring-red-800"
+                 focus:ring-4 focus:outline-none focus:ring-red-800 hover:cursor-pointer"
     >
       Delete the Event
       <svg

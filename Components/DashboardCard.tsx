@@ -34,7 +34,8 @@ const Card: React.FC<CardProps> = ({
           alt={title}
           width={400}
           height={250}
-          style={{ height: "200px" }}
+          style={{ width: "100%", height: "200px" }}
+          loading="eager"
         />
       </a>
 

@@ -30,10 +30,27 @@ export default async function EventsList({
   // refetch events for the adjusted page
   const finalData =
     pageToShow !== currentPage ? await getEvents(pageToShow) : data;
-
   return (
     <>
       <h1 className="text-center">All Events</h1>
+      <h3
+        className="text-center text-2xl rounded-lg shadow-md"
+        style={{ color: "grey" }}
+      >
+        📊 Total Events: <span className="font-bold">{finalData.total}</span> |
+        Total Pages: <span className="font-bold">{finalData.totalPages}</span> |
+        Current Page: <span className="font-bold">{finalData.currentPage}</span>
+      </h3>
+
+      <div className="flex justify-end mr-10">
+        <Link
+          href="/dashboard/create"
+          className="px-4 py-2 rounded bg-green-600 text-white disabled:opacity-50"
+        >
+          Create an Event
+        </Link>
+      </div>
+
       <div className="p-10">
         <div
           className="

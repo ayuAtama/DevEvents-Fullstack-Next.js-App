@@ -8,8 +8,6 @@ const Home = async () => {
   "use cache";
   cacheLife("hours");
 
-  console.log("Where am I?");
-
   // let data1: IEvent[] = fakeData as unknown as IEvent[];
 
   // Try to fetch real data, fallback to fake data if it fails

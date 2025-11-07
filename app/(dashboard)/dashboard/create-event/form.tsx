@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 // Zod schema for form validation (image is a File now, not a URL)
 const EventFormSchema = z.object({
@@ -40,7 +42,6 @@ interface NewEventFormPageProps {
 }
 
 export default function NewEventFormPage({ session }: NewEventFormPageProps) {
-  console.log(session);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(
     null
@@ -110,9 +111,11 @@ export default function NewEventFormPage({ session }: NewEventFormPageProps) {
 
       if (!res.ok) {
         setResult({ ok: false, message: payload?.message || "Server error" });
+        toast.error(payload?.message || "Server Error");
       } else {
         setResult({ ok: true, message: "Event created successfully" });
         reset();
+        toast.success("Event created successfully");
       }
     } catch (err: any) {
       setResult({ ok: false, message: err?.message || "Network error" });
@@ -120,6 +123,16 @@ export default function NewEventFormPage({ session }: NewEventFormPageProps) {
       setSubmitting(false);
     }
   }
+
+  // useEffect for restting message after 5 seconds
+  useEffect(() => {
+    if (result) {
+      const timer = setTimeout(() => {
+        setResult(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  });
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -356,7 +369,7 @@ export default function NewEventFormPage({ session }: NewEventFormPageProps) {
           </div>
         </div>
 
-        <div className="pt-4">
+        <div className="pt-4 gap-2 flex">
           <button
             type="submit"
             disabled={submitting}
@@ -364,6 +377,12 @@ export default function NewEventFormPage({ session }: NewEventFormPageProps) {
           >
             {submitting ? "Submitting..." : "Create Event"}
           </button>
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded bg-green-600 text-white disabled:opacity-50 inline-block"
+          >
+            Back
+          </Link>
         </div>
 
         {result && (

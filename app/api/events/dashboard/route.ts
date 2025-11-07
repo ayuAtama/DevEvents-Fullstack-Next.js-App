@@ -14,8 +14,6 @@ export async function GET(req: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "5");
 
-  console.log("searchParams:", searchParams, "The rest:", page, limit, req.url);
-
   const start = (page - 1) * limit;
   const end = start + limit;
   const paginated = allEvents.slice(start, end);
@@ -39,17 +37,10 @@ export async function GET(req: Request) {
     };
 
     // log before returning
-    console.log("data:", data);
+    // console.log("data:", data);
     return NextResponse.json(data);
   } catch (error: any) {
     console.error("Error connecting to MongoDB:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  return NextResponse.json({
-    events: paginated,
-    total: allEvents.length,
-    currentPage: page,
-    totalPages: Math.ceil(allEvents.length / limit),
-  });
 }
