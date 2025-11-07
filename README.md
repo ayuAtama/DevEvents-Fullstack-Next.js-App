@@ -17,7 +17,7 @@ Discover and manage developer events. Create events with images, browse details,
 
 ## Project Structure
 - `app/`
-  - `/(root)/page.tsx`: Home page. Fetches events from `GET /api/events` and renders `EventCard`.
+  - `/page.tsx`: Home page. Fetches events from `GET /api/events` and renders `EventCard`.
   - `/(authentication)/login/page.tsx`: Login page with NextAuth credentials provider.
   - `/(authentication)/forget-password/page.tsx`: Password recovery page (placeholder).
   - `/(dashboard)/dashboard/`: Protected dashboard routes (requires authentication).
@@ -405,7 +405,6 @@ Rewrites are configured; set public keys in env if using analytics.
 
 ### Create Event (API)
 Use multipart/form-data as shown in the `POST /api/events` example above.
-**Note**: Requires authentication session.
 
 ### Book Event (UI)
 On an event detail page (`/events/[slug]`), submit email via the booking form.
