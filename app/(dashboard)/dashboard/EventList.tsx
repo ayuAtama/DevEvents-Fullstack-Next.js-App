@@ -1,4 +1,3 @@
-import page from "@/app/(root)/about/page";
 import Card from "@/Components/DashboardCard";
 import { IEvent } from "@/database";
 import Link from "next/link";
