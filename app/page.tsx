@@ -2,16 +2,20 @@ import ExplorerBtn from "@/Components/ExplorerBtn";
 import EventCard from "@/Components/EventCard";
 import { IEvent } from "@/database";
 import { cacheLife } from "next/cache";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+//import data1 from "@/lib/fakedata";
 
 const Home = async () => {
   "use cache";
   cacheLife("hours");
 
-  console.log("Where am I?");
-  const response = await fetch(`${BASE_URL}/api/events`);
-  const data: IEvent[] = await response.json();
+  // let data1: IEvent[] = fakeData as unknown as IEvent[];
+
+  // Try to fetch real data, fallback to fake data if it fails
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  const url = `${BASE_URL}/api/events`;
+  const response = await fetch(url);
+  const data1: IEvent[] = await response.json();
+
   return (
     <section>
       <h1 className="text-center">
@@ -23,17 +27,15 @@ const Home = async () => {
       </p>
       <ExplorerBtn />
 
-      <div className="mt-20 space-y-7">
+      <div id="events" className="mt-20 space-y-7">
         <h3>Featured Events</h3>
 
         <ul className="events list-none">
-          {data &&
-            data.length > 0 &&
-            data.map((event) => (
-              <li key={event.title}>
-                <EventCard {...event} />
-              </li>
-            ))}
+          {data1.map((event) => (
+            <li key={event.title}>
+              <EventCard {...event} />
+            </li>
+          ))}
         </ul>
       </div>
     </section>

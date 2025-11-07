@@ -133,6 +133,17 @@ EventSchema.pre("save", function (next) {
   next();
 });
 
+// Pre-Update hook for slug generation and data normalization
+EventSchema.pre("findOneAndReplace", function (next) {
+  const update = this.getUpdate() as IEvent;
+
+  // Generat slug only if title changed
+  if (update.title) {
+    update.slug = generateSlug(update.title);
+  }
+  next();
+});
+
 // Helper function to generate URL-friendly slug
 function generateSlug(title: string): string {
   return title

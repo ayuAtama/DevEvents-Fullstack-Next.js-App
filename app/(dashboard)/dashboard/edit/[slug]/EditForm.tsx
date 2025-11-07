@@ -1,9 +1,13 @@
+// app/dashboard/edit/[slug]/EditForm.tsx
+
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import toast from "react-hot-toast";
 
 // Zod schema for form validation (image is a File now, not a URL)
 const EventFormSchema = z.object({
@@ -12,9 +16,7 @@ const EventFormSchema = z.object({
     .min(3, "Title is required and should be at least 3 characters"),
   description: z.string().min(10, "Short description required (min 10 chars)"),
   overview: z.string().optional().nullable(),
-  image: z.any().refine((file) => file instanceof FileList && file.length > 0, {
-    message: "Image file is required",
-  }),
+  image: z.any().optional(),
   venue: z.string().min(2, "Venue is required"),
   location: z.string().min(2, "Location is required"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD"),
@@ -28,12 +30,31 @@ const EventFormSchema = z.object({
 
 type EventForm = z.infer<typeof EventFormSchema>;
 
-export default function NewEventFormPage() {
+// Define the props for the NewEventFormPage component
+interface EditEventFormPageProps {
+  session: {
+    user: {
+      id: string;
+      name?: string;
+    };
+    expires: string;
+  };
+  slug: string;
+  event: EventForm;
+}
+
+export default function EditForm({
+  session,
+  event,
+  slug,
+}: EditEventFormPageProps) {
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+  // Form state
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(
     null
   );
-
   const {
     register,
     control,
@@ -43,18 +64,18 @@ export default function NewEventFormPage() {
   } = useForm<EventForm>({
     resolver: zodResolver(EventFormSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      overview: "",
-      venue: "",
-      location: "",
-      date: new Date().toISOString().slice(0, 10),
-      time: "08:30",
-      mode: "hybrid",
-      audience: "",
-      agenda: ["08:30 AM - 09:30 AM | Opening Remarks"],
-      organizer: "",
-      tags: ["Cloud"],
+      title: event.title,
+      description: event.description,
+      overview: event.overview,
+      venue: event.venue,
+      location: event.location,
+      date: event.date,
+      time: event.time,
+      mode: event.mode,
+      audience: event.audience,
+      agenda: event.agenda,
+      organizer: event.organizer,
+      tags: event.tags,
     },
   });
 
@@ -78,7 +99,15 @@ export default function NewEventFormPage() {
       formData.append("title", data.title);
       formData.append("description", data.description);
       if (data.overview) formData.append("overview", data.overview);
-      formData.append("image", data.image[0]); // real image file
+
+      // check if there is a new image
+      if (data.image && data.image.length > 0) {
+        formData.append("image", data.image[0]); // real image file
+      } else if (event.image) {
+        // No new image, keep the old one
+        formData.append("image", event.image);
+      }
+
       formData.append("venue", data.venue);
       formData.append("location", data.location);
       formData.append("date", data.date);
@@ -90,8 +119,9 @@ export default function NewEventFormPage() {
       data.agenda.forEach((item) => formData.append("agenda", item));
       data.tags?.forEach((tag) => formData.append("tags", tag));
 
-      const res = await fetch("http://localhost:3000/api/events", {
-        method: "POST",
+      // Use the slug in the URL and correct method
+      const res = await fetch(`${BASE_URL}/api/events/${slug}`, {
+        method: "PUT",
         body: formData, // multipart/form-data automatically handled
       });
 
@@ -99,9 +129,11 @@ export default function NewEventFormPage() {
 
       if (!res.ok) {
         setResult({ ok: false, message: payload?.message || "Server error" });
+        toast.error(payload.message);
       } else {
-        setResult({ ok: true, message: "Event created successfully" });
-        reset();
+        setResult({ ok: true, message: "Event updated successfully" });
+        // Don't reset after successful update, keep the form data
+        toast.success(String("Event updated successfully"));
       }
     } catch (err: any) {
       setResult({ ok: false, message: err?.message || "Network error" });
@@ -110,9 +142,21 @@ export default function NewEventFormPage() {
     }
   }
 
+  // useEffect for restting message after 5 seconds
+  useEffect(() => {
+    if (result) {
+      const timer = setTimeout(() => {
+        setResult(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  });
+
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Create New Event</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        Edit Your Event Here {session.user.name}!
+      </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4"
@@ -151,13 +195,21 @@ export default function NewEventFormPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Image File</label>
+          <label className="block text-sm font-medium">
+            Image File (optional - leave empty to keep current)
+          </label>
           <input
             type="file"
             accept="image/*"
             {...register("image")}
             className="mt-1 block w-full rounded border px-3 py-2"
           />
+          {event.image && (
+            <div>
+              <p className="text-sm text-gray-500 mt-1">Current image:</p>
+              <p className="text-sm text-red-300">{event.image}</p>
+            </div>
+          )}
           {errors.image && (
             <p className="text-sm text-red-600">
               {String(errors.image.message)}
@@ -343,14 +395,21 @@ export default function NewEventFormPage() {
           </div>
         </div>
 
-        <div className="pt-4">
+        <div className="pt-4 gap-2 flex">
           <button
             type="submit"
             disabled={submitting}
-            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
+            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
           >
-            {submitting ? "Submitting..." : "Create Event"}
+            {submitting ? "Updating..." : "Update Event"}
           </button>
+
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded bg-green-600 text-white disabled:opacity-50 inline-block"
+          >
+            Back
+          </Link>
         </div>
 
         {result && (

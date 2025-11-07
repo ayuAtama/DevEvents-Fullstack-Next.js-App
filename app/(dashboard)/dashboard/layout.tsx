@@ -1,10 +1,13 @@
-const layout = ({ children }: { children: React.ReactNode }) => {
+import ConsoleMessage from "@/Components/watermark";
+import { ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <div>Dashboard Navbar</div>
-      {children}
+      <Toaster position="top-right" containerClassName="mt-15" />
+      {/* ✅ single Toaster instance */}
+      <main>{children}</main>
     </>
   );
-};
-
-export default layout;
+}
