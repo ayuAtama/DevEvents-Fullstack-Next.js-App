@@ -102,7 +102,9 @@ export default function NewEventFormPage({ session }: NewEventFormPageProps) {
       data.agenda.forEach((item) => formData.append("agenda", item));
       data.tags?.forEach((tag) => formData.append("tags", tag));
 
-      const res = await fetch("http://localhost:3000/api/events", {
+      const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+      const url = `${BASE_URL}/api/events`;
+      const res = await fetch(url, {
         method: "POST",
         body: formData, // multipart/form-data automatically handled
       });

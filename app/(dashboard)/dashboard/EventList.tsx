@@ -33,7 +33,7 @@ export default async function EventsList({
     <>
       <h1 className="text-center">All Events</h1>
       <h3
-        className="text-center text-2xl rounded-lg shadow-md"
+        className="text-center text-2xl"
         style={{ color: "grey" }}
       >
         📊 Total Events: <span className="font-bold">{finalData.total}</span> |
@@ -41,9 +41,9 @@ export default async function EventsList({
         Current Page: <span className="font-bold">{finalData.currentPage}</span>
       </h3>
 
-      <div className="flex justify-end mr-10">
+      <div className="flex justify-end mr-20">
         <Link
-          href="/dashboard/create"
+          href="/dashboard/create-event"
           className="px-4 py-2 rounded bg-green-600 text-white disabled:opacity-50"
         >
           Create an Event
