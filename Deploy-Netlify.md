@@ -25,7 +25,6 @@ This guide documents how this full-stack Next.js project was deployed to **Netli
 npm install
 ````
 
-
 > 📝 **Side note:**
 > If your local build fails while using `pnpm`, try switching to `npm` or `yarn`.
 > Netlify’s build environment has better compatibility with **npm** and **yarn** compared to **pnpm**, especially for projects using `@netlify/plugin-nextjs` or complex postinstall scripts.
@@ -41,15 +40,21 @@ If it runs fine at `http://localhost:3000`, you’re ready to deploy.
 
 ---
 
-## ☁️ Deploying to Netlify
+## ☁️ Deploying to Netlify (Two Options)
 
-### 1. Install the Netlify Plugin
+You can deploy either via **Git** or **Netlify CLI**.
+
+---
+
+### 🧩 Option 1 — Deploy via Git (Recommended for Continuous Deployment)
+
+#### 1. Install the Netlify Plugin
 
 ```bash
 npm install -D @netlify/plugin-nextjs
 ```
 
-### 2. Add `netlify.toml` on root project folder
+#### 2. Add `netlify.toml` on root project folder
 
 ```toml
 [build]
@@ -60,7 +65,7 @@ npm install -D @netlify/plugin-nextjs
   package = "@netlify/plugin-nextjs"
 ```
 
-### 3. Add Required Environment Variables (in Netlify Dashboard)
+#### 3. Add Required Environment Variables (in Netlify Dashboard)
 
 | Key                 | Example Value                        | Description                            |
 | ------------------- | ------------------------------------ | -------------------------------------- |
@@ -69,9 +74,7 @@ npm install -D @netlify/plugin-nextjs
 | `NEXTAUTH_SECRET`   | `your_secret_here`                   | Random secret for JWT / sessions       |
 | Other provider vars | e.g., `GITHUB_ID`, `GITHUB_SECRET`   | Depends on your Auth provider          |
 
-### 4. Push to GitHub
-
-Commit and push your changes:
+#### 4. Push to GitHub
 
 ```bash
 git add .
@@ -79,7 +82,7 @@ git commit -m "Deploy setup for Netlify"
 git push origin main
 ```
 
-### 5. Connect Repo to Netlify
+#### 5. Connect Repo to Netlify
 
 1. Go to [https://app.netlify.com](https://app.netlify.com)
 2. “Add new site” → “Import from Git”
@@ -89,12 +92,72 @@ git push origin main
    * **Build command:** `npm run build`
    * **Publish directory:** `.next`
 
-### 6. Trigger Deploy (With New Env Vars)
+#### 6. Trigger Deploy (With New Env Vars)
 
 After adding or changing environment variables:
 
 👉 Use **“Trigger deploy → Deploy site without cache”**
 This ensures a fresh rebuild with updated environment variables.
+
+---
+
+### 🧰 Option 2 — Deploy via Netlify CLI (Manual Deploy)
+
+You can also deploy directly from your terminal using the Netlify CLI.
+
+#### 1. Install the CLI
+
+```bash
+npm install -g netlify-cli
+```
+
+#### 2. Login to Netlify
+
+```bash
+netlify login
+```
+
+#### 3. Initialize the Project (First Time Only)
+
+This links your local folder to a Netlify site.
+
+```bash
+netlify init
+```
+
+> If you already have a site on Netlify, choose “Use existing site” and select it.
+
+#### 4. Build Locally
+
+```bash
+npm run build
+```
+
+#### 5. Deploy to a Preview (Temporary URL)
+
+```bash
+netlify deploy
+```
+
+You’ll get a preview URL like:
+
+```
+https://your-temp-id--yourapp.netlify.app
+```
+
+#### 6. Deploy to Production (Permanent URL)
+
+```bash
+netlify deploy --prod
+```
+
+That will publish your site to:
+
+```
+https://your-site-name.netlify.app
+```
+
+✅ This method is perfect for quick testing or manual redeploys after editing `.env` or config files.
 
 ---
 
@@ -148,7 +211,7 @@ Then **redeploy without cache**.
 | 1️⃣  | Build locally (`npm run build && npm run start`)   |
 | 2️⃣  | Add `@netlify/plugin-nextjs` and `netlify.toml`    |
 | 3️⃣  | Push code to GitHub                                |
-| 4️⃣  | Connect repo to Netlify                            |
+| 4️⃣  | Connect repo or deploy via Netlify CLI             |
 | 5️⃣  | Configure environment variables                    |
 | 6️⃣  | **Deploy site without cache** when env vars change |
 | 7️⃣  | Test your routes and Auth.js functionality         |
@@ -161,6 +224,7 @@ Then **redeploy without cache**.
 * The 10 GB storage is **shared account-wide** across all your projects.
 * If you update `.env` or Auth provider settings, you must **redeploy** for the changes to take effect.
 * 🧩 **If your build fails locally with `pnpm`,** switch to `npm` or `yarn` and delete the `pnpm-lock.yaml` file before rebuilding.
+* When using **Netlify CLI**, your `.env` file is read locally, so you don’t need to set them in the dashboard (useful for testing before pushing to Git).
 
 ---
 

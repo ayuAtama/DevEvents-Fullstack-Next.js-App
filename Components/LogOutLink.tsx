@@ -8,9 +8,9 @@ interface LogoutLinkProps {
 }
 
 export default function LogoutLink({ userName }: LogoutLinkProps) {
-  const handleLogOut = (e: React.MouseEvent) => {
+  const handleLogOut = async(e: React.MouseEvent) => {
     e.preventDefault();
-    signOut({ callbackUrl: "/" });
+    await signOut({ callbackUrl: "/" });
   };
 
   return (
