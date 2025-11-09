@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
 import LogoutLink from "./LogOutLink";
 
 async function Navbar() {
