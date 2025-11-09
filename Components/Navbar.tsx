@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LogoutLink from "./LogOutLink";
-import { usePathname } from "next/navigation";
 
 async function Navbar() {
   // check if user is logged in
