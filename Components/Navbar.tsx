@@ -9,11 +9,7 @@ import { usePathname } from "next/navigation";
 async function Navbar() {
   // check if user is logged in
   //  cookies();
-  //  const session = await auth();
-
-  const pathname = usePathname();
-  const shouldCheck = pathname !== "/login";
-  const session = shouldCheck ? await auth() : null;
+  const session = await auth();
 
   return (
     <header>
