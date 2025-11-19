@@ -21,13 +21,12 @@ const Card: React.FC<CardProps> = ({
   buttonText = "Edit the Event",
   className = "",
 }) => {
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   return (
     <div
       className={`max-w-sm bg-gray-800 border border-gray-700 rounded-lg shadow-sm 
     flex flex-col justify-between overflow-hidden dark:bg-gray-800 dark:border-gray-700 ${className}`}
     >
-      <a href={`${BASE_URL}/events/${slug}`}>
+      <a href={`/events/${slug}`}>
         <Image
           className="rounded-t-lg w-full object-cover"
           src={image}
@@ -41,7 +40,7 @@ const Card: React.FC<CardProps> = ({
 
       <div className="flex flex-col justify-between flex-grow p-5">
         <div>
-          <a href={`${BASE_URL}/events/${slug}`}>
+          <a href={`/events/${slug}`}>
             <h5 className="mb-2 text-2xl font-bold tracking-tight text-white line-clamp-2">
               {title}
             </h5>
@@ -53,7 +52,7 @@ const Card: React.FC<CardProps> = ({
 
         <div className="mt-auto flex gap-2">
           <a
-            href={`${BASE_URL}/dashboard/edit/${slug}`}
+            href={`/dashboard/edit/${slug}`}
             className="inline-flex items-center px-3 py-2 text-sm font-medium text-center 
                    text-white bg-blue-600 rounded-lg hover:bg-blue-700 
                    focus:ring-4 focus:outline-none focus:ring-blue-800"
